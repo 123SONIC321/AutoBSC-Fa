@@ -1,5 +1,4 @@
 - name: Zola Deploy to Pages
-
 on: 
  push:
   branches:
