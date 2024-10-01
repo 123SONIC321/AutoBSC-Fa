@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+Allow: /
+Sitemap: https://123sonic321.github.io/AutoBSC-Fa/sitemap.xml
