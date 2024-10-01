@@ -1,0 +1,17 @@
+- name: Zola Deploy to Pages
+
+on: 
+ push:
+  branches:
+   - master
+jobs:
+  build:
+    name: Publish site
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout master
+      uses: actions/checkout@v4
+    - name: Build and deploy
+      uses: shalzz/zola-deploy-action@v0.19.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
