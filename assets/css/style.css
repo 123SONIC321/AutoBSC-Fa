@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('https://github.com/rastikerdar/vazirmatn/raw/refs/heads/master/fonts/ttf/Vazirmatn-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Vazirmatn', sans-serif;
+}
