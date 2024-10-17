@@ -1,14 +1,73 @@
+/* بارگذاری فونت وزیر */
 @font-face {
-    src: url("https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css");
-    font-family: "vazirmatn"
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'Vazirmatn';
+    src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+    font-weight: normal;
+    font-style: normal;
 }
 
+/* تنظیمات عمومی برای بدنه‌ی صفحه */
 body {
-  font-family: 'Vazirmatn', sans-serif;
-  direction: rtl;
-  text-align: right;
-  margin: 0;
-  padding: 0;
+    font-family: 'Vazirmatn', sans-serif; /* استفاده از فونت وزیر */
+    direction: rtl; /* راست‌چین کردن متن */
+    text-align: right; /* تنظیم تراز متن به راست */
+    margin: 0;
+    padding: 0;
+}
+
+/* استایل برای تصاویری که باید وسط‌چین شوند */
+.medium-zoom-image {
+    display: block;
+    margin: 0 auto;
+}
+
+/* تنظیمات برای نمایش صحیح بلوک‌های نقل قول */
+blockquote {
+    border-right: 4px solid var(--theme-color, #42b983);
+    border-left: none;
+    padding-right: 20px;
+    padding-left: 0;
+}
+
+/* تنظیمات برای راست‌چین کردن کدهای برنامه‌نویسی */
+pre {
+    direction: ltr !important; /* چپ‌چین کردن کدها */
+}
+
+/* تنظیمات برای نوار کناری راست‌چین (برای Docsify) */
+.sidebar .rtlsidebar {
+    text-align: right;
+    right: 0;
+    left: auto !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.sidebar .rtlsidebar ul li.active > a {
+    border-right: 0px solid !important;
+    border-left: 2px solid;
+}
+
+.sidebar .rtlsidebar ul {
+    margin: 0 15px 0 0;
+}
+
+.sidebar .rtlsidebar .app-sub-sidebar li:before {
+    content: "-";
+    padding-left: 4px;
+    float: right;
+}
+
+/* تنظیمات برای دکمه‌ی نوار کناری در نسخه‌ی موبایل */
+.sidebar-toggle {
+    background-color: unset;
+    position: fixed !important;
+    top: 0 !important;
+    bottom: auto !important;
+    padding: 10px 10px 10px 10px !important;
+}
+
+@media screen and (max-width: 768px) {
+    .markdown-section {
+        padding: 16px 16px 16px 36px !important;
+    }
 }
