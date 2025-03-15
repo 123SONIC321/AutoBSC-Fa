@@ -4,7 +4,7 @@
 // @homepageURL  https://github.com/123SONIC321/AutoBSC-Fa
 // @supportURL   https://github.com/123SONIC321/AutoBSC-Fa/issues
 // @license      MIT
-// @version      2.2.0
+// @version      2.3.0
 // @description  Auto completes Brawl Stars Championship live stream events
 // @author       123SONIC321
 // @match        https://event.supercell.com/brawlstars/*
@@ -33,7 +33,7 @@ function store(key, val) {
 // Do not change the config key unless you know what you are doing
 
 // Auto send cheer, +5 points
-let cheerEnabled = true;
+let cheerEnabled = load("cheer", true);
 
 // Auto send poll (choosing MVP), always choose the first option, +100 points
 let pollEnabled = load("poll", true);
@@ -42,7 +42,7 @@ let pollEnabled = load("poll", true);
 let quizEnabled = load("quiz", true);
 
 // Auto send match prediction
-let matchPredictionEnabled = load("matchPrediction", true);
+let matchPredictionEnabled = load("matchPrediction", false);
 
 // Team selection strategy
 // Can be 1 (select first team), 2 (select second team), rand (select random), maj (follow majority)
@@ -76,39 +76,26 @@ function log(msg) {
     feed = document.getElementsByClassName("Feed__content")[0];
     if (!feed) {return}
   }
-
-  feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", `<div data-v-10a27b37="" data-v-48743964="">
-  <div
-    data-v-69011ee0=""
-    data-v-10a27b37=""
-    class="Container"
-    style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px)"
-  >
-    <div data-v-7b4ba43f="" data-v-69011ee0="" class="BaseCard BaseCard--rmedium">
-      <div
-        data-v-69011ee0=""
-        data-v-7b4ba43f=""
-        class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration"
-      >
-        <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration">
-          <div data-v-10a27b37="" data-v-7b4ba43f="" class="RewardCard">
-          <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration__background"></div>
-          <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration__bottomContainer"></div>
-            <div data-v-10a27b37="" class="RewardCard__rewardContainer" data-v-7b4ba43f="">
-              <div data-v-10a27b37="" class="RewardCard__infoContainer">
-                <div data-v-10a27b37="" class="RewardCard__textContainer" style="opacity: 1">
-                  <div data-v-10a27b37="" class="RewardCard__textContainer__title">${msg}</div>
+  
+  feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", `<div data-v-3dcc93da="" data-v-8a7cf7d7="" class="Container" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
+    <div data-v-de4b4abb="" data-v-3dcc93da="" class="BaseCard BaseCard--rmedium">
+        <div data-v-3dcc93da="" class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration">
+            <div data-v-3dcc93da="" class="ContentCard__celebration">
+                <div data-v-3dcc93da="" class="ContentCard__celebration__background"></div>
+                <div data-v-3dcc93da="" class="ContentCard__celebration__bottomContainer"></div>
+                <div data-v-8a7cf7d7="" class="RewardCard">
+                    <div data-v-8a7cf7d7="" class="RewardCard__rewardContainer">
+                        <div data-v-8a7cf7d7="" class="RewardCard__infoContainer">
+                            <div data-v-8a7cf7d7="" class="RewardCard__textContainer">
+                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__title">${msg}</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
-`)
-
+</div>`)
 };
 
 function purge(elements) {
@@ -312,7 +299,7 @@ function purge(elements) {
 	  
       if (messageType === "slider" && sliderEnabled) {
         if (event.payload.typeId !== lastSliderId) {
-          log("Collecting slider")
+          log("دریافت لغزنده")
 		  
           setTimeout(() => {
             for (let drop of document.getElementsByClassName("SliderQuestionCard")) {
@@ -377,13 +364,6 @@ function purge(elements) {
 .Video__InteractionBlocker, .VideoCover.VideoCover--hidden {
     all: unset !important;
     display: none;
-}
-.RewardCard__textContainer__title, .RewardCard__textContainer__subTitle {
-    font-family: "vazirmatn" !important;
-}
-@font-face {
-    src: url("https://github.com/rastikerdar/vazirmatn/raw/master/fonts/ttf/Vazirmatn-Regular.ttf");
-    font-family: "vazirmatn"
 }
 </style>
 <div id="autobsc-overlay" style="position: absolute; top: 20%; z-index: 99999999; background: antiquewhite">
@@ -508,48 +488,29 @@ function purge(elements) {
     matchpredred = document.getElementById("autobsc-pick-red")
   }
 
-  const loadedMessageHtml = `<div data-v-10a27b37="" data-v-48743964="">
-  <div
-    data-v-69011ee0=""
-    data-v-10a27b37=""
-    class="Container Container--extraTopMargin"
-    style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px)"
-  >
-    <div data-v-7b4ba43f="" data-v-69011ee0="" class="BaseCard BaseCard--rmedium">
-      <div
-        data-v-69011ee0=""
-        data-v-7b4ba43f=""
-        class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration"
-      >
-        <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration">
-          <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration__background"></div>
-          <div data-v-69011ee0="" data-v-7b4ba43f="" class="ContentCard__celebration__bottomContainer"></div>
-          <div data-v-10a27b37="" data-v-7b4ba43f="" class="RewardCard">
-            <div data-v-10a27b37="" class="RewardCard__rewardContainer" data-v-7b4ba43f="">
-              <div data-v-10a27b37="" class="RewardCard__reward" style="translate: none; rotate: none; scale: none; transform: translate(0px, 0px)">
-                <picture data-v-3740ac92="" data-v-10a27b37="" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"
-                  >
-                  <img
-                    data-v-3740ac92=""
-                    src="https://event.supercell.com/brawlstars/img/ico_correct.d0dacc2.svg"
-                    class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"
-                /></picture>
-              </div>
-              <div data-v-10a27b37="" class="RewardCard__infoContainer">
-                <div data-v-10a27b37="" class="RewardCard__textContainer" style="opacity: 1">
-                  <div data-v-10a27b37="" class="RewardCard__textContainer__title">AutoBSC++ بارگزاری شد</div>
-                  <div data-v-10a27b37="" class="RewardCard__textContainer__subTitle">laptopcat ساخته شده توسط</div>
-                  <div data-v-10a27b37="" class="RewardCard__textContainer__subTitle">translated by 123SONIC321</div>
+  const loadedMessageHtml = `<div data-v-3dcc93da="" data-v-8a7cf7d7="" class="Container Container--extraTopMargin" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
+    <div data-v-de4b4abb="" data-v-3dcc93da="" class="BaseCard BaseCard--rmedium">
+        <div data-v-3dcc93da="" class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration">
+            <div data-v-3dcc93da="" class="ContentCard__celebration">
+                <div data-v-3dcc93da="" class="ContentCard__celebration__background"></div>
+                <div data-v-3dcc93da="" class="ContentCard__celebration__bottomContainer"></div>
+                <div data-v-8a7cf7d7="" class="RewardCard">
+                    <div data-v-8a7cf7d7="" class="RewardCard__rewardContainer">
+                        <div data-v-8a7cf7d7="" class="RewardCard__reward">
+                            <picture data-v-afed0133="" data-v-8a7cf7d7="" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"><img data-v-afed0133="" src="https://event.supercell.com/brawlstars/assets/rewards/images/emoji_starr.svg" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"></picture>
+                        </div>
+                        <div data-v-8a7cf7d7="" class="RewardCard__infoContainer">
+                            <div data-v-8a7cf7d7="" class="RewardCard__textContainer">
+                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__title">AutoBSC++ بارگزاری شد</div>
+                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__subTitle">translated by 123SONIC321</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
-</div>
-`;
+</div>`;
 })();
 
 function dragElement(elmnt) {
