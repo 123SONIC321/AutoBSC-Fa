@@ -4,7 +4,7 @@
 // @homepageURL  https://github.com/123SONIC321/AutoBSC-Fa
 // @supportURL   https://github.com/123SONIC321/AutoBSC-Fa/issues
 // @license      MIT
-// @version      2.3.0
+// @version      2.4.0
 // @description  Auto completes Brawl Stars Championship live stream events
 // @author       123SONIC321
 // @match        https://event.supercell.com/brawlstars/*
@@ -73,21 +73,20 @@ function log(msg) {
     return
   }
   if (!feed) {
-    feed = document.getElementsByClassName("Feed__content")[0];
+    feed = document.getElementsByClassName("feed__content")[0];
     if (!feed) {return}
   }
   
-  feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", `<div data-v-3dcc93da="" data-v-8a7cf7d7="" class="Container" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
-    <div data-v-de4b4abb="" data-v-3dcc93da="" class="BaseCard BaseCard--rmedium">
-        <div data-v-3dcc93da="" class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration">
-            <div data-v-3dcc93da="" class="ContentCard__celebration">
-                <div data-v-3dcc93da="" class="ContentCard__celebration__background"></div>
-                <div data-v-3dcc93da="" class="ContentCard__celebration__bottomContainer"></div>
-                <div data-v-8a7cf7d7="" class="RewardCard">
-                    <div data-v-8a7cf7d7="" class="RewardCard__rewardContainer">
-                        <div data-v-8a7cf7d7="" class="RewardCard__infoContainer">
-                            <div data-v-8a7cf7d7="" class="RewardCard__textContainer">
-                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__title">${msg}</div>
+  feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", `<div data-v-d6e82d06="" data-v-e516d47b="" class="contentCardContainer" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
+    <div data-v-ff43890a="" data-v-d6e82d06="" class="baseCard baseCard--paper" radius="medium">
+        <div data-v-d6e82d06="" class="contentCard contentCard--paper contentCard--isFullWidth contentCard--enabled">
+            <div data-v-d6e82d06="" class="contentCard__gameBackground"></div>
+            <div data-v-d6e82d06="" class="contentCard__slot">
+                <div data-v-e516d47b="" class="rewardCard">
+                    <div data-v-e516d47b="" class="rewardCard__rewardContainer">
+                        <div data-v-e516d47b="" class="rewardCard__infoContainer">
+                            <div data-v-e516d47b="" class="rewardCard__textContainer" style="opacity: 1;">
+                                <div data-v-e516d47b="" class="rewardCard__textContainer__title">${msg}</div>
                             </div>
                         </div>
                     </div>
@@ -221,9 +220,9 @@ function purge(elements) {
           log("پاسخگویی به سؤال");
 
           setTimeout(() => {
-            for (let que of document.getElementsByClassName("BaseCard")) {
+            for (let que of document.getElementsByClassName("baseCard")) {
               try {
-                if (que.getElementsByClassName("Points__correctAnswer").length === 0) {
+                if (que.getElementsByClassName("cardRules__extraPoints").length === 0) {
                   continue
                 }
 
@@ -325,24 +324,12 @@ function purge(elements) {
     console.log("[AutoBSC] AutoBSC با موفقیت بارگزاری شد");
 
     const interval = setInterval(() => {
-      const div = document.getElementsByClassName("Feed__content")[0];
+      const div = document.getElementsByClassName("feed__content")[0];
       if (div) {
         div.insertAdjacentHTML("afterbegin", loadedMessageHtml);
         clearInterval(interval);
       }
     }, 500);
-
-    const reconnectButtonContainer = document.querySelector("#__layout > div > div:nth-child(5)");
-    const reconnectButton = document.querySelector(
-      "#__layout > div > div:nth-child(5) > div > div > div > div.baseModal__scroll > div > div > button > div.RectangleButton.RectangleButton--cta > div > div"
-    );
-
-    setInterval(() => {
-      if (reconnectButtonContainer.style.display !== "none") {
-        console.log("[AutoBSC] درحال اتصال مجدد");
-        reconnectButton.click();
-      }
-    }, 1000);
 
     document.body.insertAdjacentHTML("afterbegin", `
 <style>
@@ -488,28 +475,33 @@ function purge(elements) {
     matchpredred = document.getElementById("autobsc-pick-red")
   }
 
-  const loadedMessageHtml = `<div data-v-3dcc93da="" data-v-8a7cf7d7="" class="Container Container--extraTopMargin" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
-    <div data-v-de4b4abb="" data-v-3dcc93da="" class="BaseCard BaseCard--rmedium">
-        <div data-v-3dcc93da="" class="ContentCard ContentCard--disabled ContentCard--inactive ContentCard--isFullWidth ContentCard--isCelebration">
-            <div data-v-3dcc93da="" class="ContentCard__celebration">
-                <div data-v-3dcc93da="" class="ContentCard__celebration__background"></div>
-                <div data-v-3dcc93da="" class="ContentCard__celebration__bottomContainer"></div>
-                <div data-v-8a7cf7d7="" class="RewardCard">
-                    <div data-v-8a7cf7d7="" class="RewardCard__rewardContainer">
-                        <div data-v-8a7cf7d7="" class="RewardCard__reward">
-                            <picture data-v-afed0133="" data-v-8a7cf7d7="" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"><img data-v-afed0133="" src="https://event.supercell.com/brawlstars/assets/rewards/images/emoji_starr.svg" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth"></picture>
+  const loadedMessageHtml = `<div data-v-d6e82d06="" data-v-e516d47b="" class="contentCardContainer" with-extra-top-margin="" style="translate: none; rotate: none; scale: none; transform: translate(0px); opacity: 1; --d480f784: #1743CA;">
+    <div data-v-ff43890a="" data-v-d6e82d06="" class="baseCard baseCard--paper" radius="medium">
+        <div data-v-ff43890a="" class="baseCard__cardBackground baseCard__cardBackground--paper-1"></div>
+        <div data-v-d6e82d06="" class="contentCard contentCard--paper contentCard--isFullWidth contentCard--enabled"><!---->
+            <div data-v-d6e82d06="" class="contentCard__gameBackground"></div><!---->
+            <div data-v-d6e82d06="" class="contentCard__slot">
+                <div data-v-e516d47b="" class="rewardCard">
+                    <div data-v-e516d47b="" class="rewardCard__rewardContainer">
+                        <div data-v-e516d47b="" class="rewardCard__reward" style="translate: none; rotate: none; scale: none; transform: translate(0px);">
+                            <picture data-v-5c78b667="" data-v-e516d47b="" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth">
+                                <source data-v-5c78b667="" type="image/avif" srcset="https://event.supercell.com/brawlstars/assets/proPass/7b4PejzuA1AbEMP3AhYF4g.avif">
+                                <source data-v-5c78b667="" type="image/webp" srcset="https://event.supercell.com/brawlstars/assets/proPass/7b4PejzuA1AbEMP3AhYF4g.webp"><img data-v-5c78b667="" src="https://event.supercell.com/brawlstars/assets/proPass/7b4PejzuA1AbEMP3AhYF4g.png" class="cms-image cms-image--fullWidth cms-image--loaded cms-image--fullWidth" loading="lazy">
+                            </picture>
                         </div>
-                        <div data-v-8a7cf7d7="" class="RewardCard__infoContainer">
-                            <div data-v-8a7cf7d7="" class="RewardCard__textContainer">
-                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__title">AutoBSC++ بارگزاری شد</div>
-                                <div data-v-8a7cf7d7="" class="RewardCard__textContainer__subTitle">translated by 123SONIC321</div>
+                        <div data-v-e516d47b="" class="rewardCard__infoContainer">
+                            <div data-v-e516d47b="" class="rewardCard__textContainer" style="opacity: 1;">
+                                <div data-v-e516d47b="" class="rewardCard__textContainer__title">AutoBSC++ بارگزاری شد</div>
+                                <div data-v-e516d47b="" class="rewardCard__textContainer__subTitle">made by laptopcat (translated by 123SONIC321)</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div><!---->
         </div>
-    </div>
+        <figure data-v-ff43890a="" class="baseCard__corner baseCard__corner--top-left"></figure><!----><!---->
+        <figure data-v-ff43890a="" class="baseCard__corner baseCard__corner--bottom-right"></figure>
+    </div><!---->
 </div>`;
 })();
 
