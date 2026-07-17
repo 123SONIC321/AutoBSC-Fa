@@ -4,7 +4,7 @@
 // @homepageURL  https://github.com/123SONIC321/AutoBSC-Fa
 // @supportURL   https://github.com/123SONIC321/AutoBSC-Fa/issues
 // @license      MIT
-// @version      3.0.0
+// @version      3.0.1
 // @description  Auto completes Brawl Stars Championship live stream events
 // @author       123SONIC321
 // @match        https://event.supercell.com/brawlstars/*
@@ -81,6 +81,7 @@ function log(msg, id) {
         </div>
     </div>
 </div>`);
+    feed.children[feed.children.length - 2].scrollIntoView();
 }
 
 function purge(elements) {
