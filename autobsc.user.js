@@ -4,7 +4,7 @@
 // @homepageURL  https://github.com/123SONIC321/AutoBSC-Fa
 // @supportURL   https://github.com/123SONIC321/AutoBSC-Fa/issues
 // @license      MIT
-// @version      3.0.1
+// @version      4.0.0
 // @description  Auto completes Brawl Stars Championship live stream events
 // @author       123SONIC321
 // @match        https://event.supercell.com/brawlstars/*
@@ -39,59 +39,124 @@ let lowDetail = load("lowDetail", false);
 let debug = false;
 let feed;
 
+let usersTimeout;
+let teamsTimeout;
+
 function log(msg, id) {
-    if (!feedLoggingEnabled) {
-        return;
-    }
-    if (!feed) {
-        feed = document.getElementsByClassName("feed__content")[0];
-        if (!feed) { return; }
-    }
-    if (id) {
-        let existing = document.getElementById(id);
-        if (existing) {
-            let title = existing.getElementsByClassName("rewardCard__textContainer__title")[0];
-            if (title) {
-                title.textContent = msg;
-                return;
+    if (!feedLoggingEnabled) return;
+
+    setTimeout(() => {
+        if (!feed) {
+            feed = document.getElementsByClassName("feed__content")[0];
+            if (!feed) return;
+        }
+
+        if (id) {
+            let existing = document.getElementById(id);
+            if (existing) {
+                let title = existing.getElementsByClassName("rewardCard__textContainer__title")[0];
+                if (title) { title.textContent = msg; return; }
             }
         }
-    }
-    let cardIdAttr = id ? `id="${id}"` : '';
-    feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", `<div data-v-6ab4ab95="" data-v-e989f123="" ${cardIdAttr}>
-    <div data-v-307c1ac7="" data-v-6ab4ab95="" class="contentCardContainer" with-extra-top-margin="" style="translate: none; rotate: none; scale: none; transform: translate3d(0px, 0px, 0px); opacity: 1; --v3ee5afce: #245fc1;">
-        <div data-v-615f3480="" data-v-307c1ac7="" class="baseCard baseCard--paper" radius="medium">
-            <div data-v-615f3480="" class="baseCard__cardBackground baseCard__cardBackground--paper-3"></div>
-            <div data-v-307c1ac7="" class="contentCard contentCard--paper contentCard--isFullWidth contentCard--enabled">
-                <div data-v-307c1ac7="" class="contentCard__gameBackground"></div>
-                <div data-v-307c1ac7="" class="contentCard__slot">
-                    <div data-v-6ab4ab95="" class="rewardCard">
-                        <div data-v-6ab4ab95="" class="rewardCard__rewardContainer">
-                            <div data-v-6ab4ab95="" class="rewardCard__infoContainer">
-                                <div data-v-6ab4ab95="" class="rewardCard__textContainer" style="opacity: 1;">
-                                    <div data-v-6ab4ab95="" class="rewardCard__textContainer__title">${msg}</div>
+
+        let cardIdAttr = id ? `id="${id}"` : '';
+        let htmlStr = `<div data-v-6ab4ab95="" data-v-e989f123="" ${cardIdAttr}>
+        <div data-v-307c1ac7="" data-v-6ab4ab95="" class="contentCardContainer" with-extra-top-margin="" style="translate: none; rotate: none; scale: none; transform: translate3d(0px, 0px, 0px); opacity: 1; --v3ee5afce: #245fc1;">
+            <div data-v-615f3480="" data-v-307c1ac7="" class="baseCard baseCard--paper" radius="medium">
+                <div data-v-615f3480="" class="baseCard__cardBackground baseCard__cardBackground--paper-3"></div>
+                <div data-v-307c1ac7="" class="contentCard contentCard--paper contentCard--isFullWidth contentCard--enabled">
+                    <div data-v-307c1ac7="" class="contentCard__gameBackground"></div>
+                    <div data-v-307c1ac7="" class="contentCard__slot">
+                        <div data-v-6ab4ab95="" class="rewardCard">
+                            <div data-v-6ab4ab95="" class="rewardCard__rewardContainer">
+                                <div data-v-6ab4ab95="" class="rewardCard__infoContainer">
+                                    <div data-v-6ab4ab95="" class="rewardCard__textContainer" style="opacity: 1;">
+                                        <div data-v-6ab4ab95="" class="rewardCard__textContainer__title">${msg}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <figure data-v-615f3480="" class="baseCard__corner baseCard__corner--topLeft"></figure>
+                <figure data-v-615f3480="" class="baseCard__corner baseCard__corner--bottomRight"></figure>
             </div>
-            <figure data-v-615f3480="" class="baseCard__corner baseCard__corner--topLeft"></figure>
-            <figure data-v-615f3480="" class="baseCard__corner baseCard__corner--bottomRight"></figure>
         </div>
-    </div>
-</div>`);
-    feed.children[feed.children.length - 2].scrollIntoView();
+    </div>`;
+
+        if (feed.children.length >= 2) {
+            feed.children[feed.children.length - 2].insertAdjacentHTML("afterend", htmlStr);
+            feed.children[feed.children.length - 2].scrollIntoView();
+        } else if (feed.children.length > 0) {
+            feed.children[feed.children.length - 1].insertAdjacentHTML("afterend", htmlStr);
+            feed.children[feed.children.length - 1].scrollIntoView();
+        }
+    }, 1000);
 }
 
 function purge(elements) {
     for (let elem of elements) {
-        try {
-            elem.remove();
-        } catch (e) {
-            console.warn("[AutoBSC] Failed to remove element", elem, e);
+        try { elem.remove(); } catch (e) {}
+    }
+}
+
+function checkMainDataSection() {
+    const users = document.getElementById("autobsc-users-wrap");
+    const teams = document.getElementById("autobsc-teams-wrap");
+    const mainSec = document.getElementById("autobsc-data-section");
+    const configTitle = document.getElementById("autobsc-config-title");
+
+    if (users && teams && mainSec) {
+        if (users.classList.contains("autobsc-hidden-block") &&
+            teams.classList.contains("autobsc-hidden-block")) {
+            mainSec.classList.add("autobsc-hidden-block");
+            if (configTitle) configTitle.style.marginTop = "0px";
+        } else {
+            if (configTitle) configTitle.style.marginTop = "20px";
         }
     }
+}
+
+function hideDataSubSection(id) {
+    const subSec = document.getElementById(id);
+    if (subSec && !subSec.classList.contains("autobsc-hidden-block")) {
+        subSec.classList.add("autobsc-hidden-block");
+    }
+    checkMainDataSection();
+}
+
+function showDataSubSection(id) {
+    const mainSec = document.getElementById("autobsc-data-section");
+    const subSec = document.getElementById(id);
+    const configTitle = document.getElementById("autobsc-config-title");
+
+    if (subSec && subSec.classList.contains("autobsc-hidden-block")) {
+        subSec.classList.remove("autobsc-hidden-block");
+    }
+    if (mainSec && mainSec.classList.contains("autobsc-hidden-block")) {
+        mainSec.classList.remove("autobsc-hidden-block");
+    }
+
+    if (configTitle) configTitle.style.marginTop = "20px";
+
+    if (id === "autobsc-users-wrap") {
+        clearTimeout(usersTimeout);
+        usersTimeout = setTimeout(() => hideDataSubSection(id), 20000);
+    } else if (id === "autobsc-teams-wrap") {
+        clearTimeout(teamsTimeout);
+        teamsTimeout = setTimeout(() => hideDataSubSection(id), 20000);
+    }
+}
+
+function updateDependencies() {
+    const stratRow = document.getElementById("autobsc-strat-row");
+    const dynRow = document.getElementById("autobsc-dyn-row");
+
+    if (matchPredictionEnabled) stratRow.classList.remove("autobsc-disabled");
+    else stratRow.classList.add("autobsc-disabled");
+
+    if (feedLoggingEnabled) dynRow.classList.remove("autobsc-disabled");
+    else dynRow.classList.add("autobsc-disabled");
 }
 
 (function() {
@@ -122,9 +187,7 @@ function purge(elements) {
             Object.defineProperty(this, "onmessage", {
                 configurable: true,
                 enumerable: true,
-                get() {
-                    return originalGet.call(this);
-                },
+                get() { return originalGet.call(this); },
                 set(newOnMessage) {
                     const onMessage = (event) => {
                         parse(event.data, this);
@@ -133,15 +196,8 @@ function purge(elements) {
                     originalSet.call(this, onMessage);
                 },
             });
-
             const originalSend = this.send;
-            this.send = function(data) {
-                if (debug) {
-                    const parsed = JSON.parse(data);
-                    console.log("[AutoBSC] Sending message:", data, parsed);
-                }
-                originalSend.call(this, data);
-            };
+            this.send = function(data) { originalSend.call(this, data); };
         }
     }
 
@@ -149,10 +205,6 @@ function purge(elements) {
 
     function parse(data, ws) {
         const msg = JSON.parse(data);
-        if (debug) {
-            console.log("[AutoBSC] Received message:", msg, data);
-        }
-
         msg.forEach(event => {
             const messageType = event.messageType;
             if (messageType === "global_state" && !loaded) {
@@ -162,6 +214,7 @@ function purge(elements) {
             if (messageType === "cheer") {
                 if (conn) {
                     conn.textContent = event.payload.connectedClients;
+                    showDataSubSection("autobsc-users-wrap");
                 }
 
                 if (lowDetail) {
@@ -174,17 +227,13 @@ function purge(elements) {
                     if (dynamicLogging) {
                         log("در حال ارسال تشویق...", cardId);
                         setTimeout(() => {
-                            for (let btn of document.getElementsByClassName("cheerButtonContainer__cheerButton")) {
-                                btn.click();
-                            }
+                            for (let btn of document.getElementsByClassName("cheerButtonContainer__cheerButton")) btn.click();
                             log("تشویق ارسال شد", cardId);
                         }, 1500);
                     } else {
                         log("تشویق ارسال شد");
                         setTimeout(() => {
-                            for (let btn of document.getElementsByClassName("cheerButtonContainer__cheerButton")) {
-                                btn.click();
-                            }
+                            for (let btn of document.getElementsByClassName("cheerButtonContainer__cheerButton")) btn.click();
                         }, 1500);
                     }
                     lastCheerId = event.payload.typeId;
@@ -198,30 +247,18 @@ function purge(elements) {
                         log("در حال پاسخگویی به نظرسنجی...", cardId);
                         setTimeout(() => {
                             try {
-                                for (let que of document.getElementsByClassName("multiChoiceQuestionCard")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                                for (let que of document.getElementsByClassName("cardImagePoll")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                            } catch (e) {
-                                console.error("[AutoBSC]", e);
-                            }
+                                for (let que of document.getElementsByClassName("multiChoiceQuestionCard")) que.getElementsByTagName("button")[0].click();
+                                for (let que of document.getElementsByClassName("cardImagePoll")) que.getElementsByTagName("button")[0].click();
+                            } catch (e) {}
                             log("نظرسنجی ارسال شد", cardId);
                         }, 3500);
                     } else {
                         log("ارسال نظرسنجی");
                         setTimeout(() => {
                             try {
-                                for (let que of document.getElementsByClassName("multiChoiceQuestionCard")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                                for (let que of document.getElementsByClassName("cardImagePoll")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                            } catch (e) {
-                                console.error("[AutoBSC]", e);
-                            }
+                                for (let que of document.getElementsByClassName("multiChoiceQuestionCard")) que.getElementsByTagName("button")[0].click();
+                                for (let que of document.getElementsByClassName("cardImagePoll")) que.getElementsByTagName("button")[0].click();
+                            } catch (e) {}
                         }, 3500);
                     }
                     lastPollId = event.payload.typeId;
@@ -234,25 +271,13 @@ function purge(elements) {
                     if (dynamicLogging) {
                         log("در حال پاسخگویی به نظرسنجی تصویری...", cardId);
                         setTimeout(() => {
-                            try {
-                                for (let que of document.getElementsByClassName("cardImagePoll")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                            } catch (e) {
-                                console.error("[AutoBSC]", e);
-                            }
+                            try { for (let que of document.getElementsByClassName("cardImagePoll")) que.getElementsByTagName("button")[0].click(); } catch (e) {}
                             log("نظرسنجی تصویری ارسال شد", cardId);
                         }, 3500);
                     } else {
                         log("ارسال نظرسنجی تصویری");
                         setTimeout(() => {
-                            try {
-                                for (let que of document.getElementsByClassName("cardImagePoll")) {
-                                    que.getElementsByTagName("button")[0].click();
-                                }
-                            } catch (e) {
-                                console.error("[AutoBSC]", e);
-                            }
+                            try { for (let que of document.getElementsByClassName("cardImagePoll")) que.getElementsByTagName("button")[0].click(); } catch (e) {}
                         }, 3500);
                     }
                     lastImagePollId = event.payload.typeId;
@@ -267,13 +292,9 @@ function purge(elements) {
                         setTimeout(() => {
                             for (let que of document.getElementsByClassName("baseCard")) {
                                 try {
-                                    if (que.getElementsByClassName("cardRules__extraPointsLabel").length === 0) {
-                                        continue;
-                                    }
+                                    if (que.getElementsByClassName("cardRules__extraPointsLabel").length === 0) continue;
                                     que.getElementsByClassName("multiChoiceQuestionCard__button")[event.payload.correctAnswer.alternative].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                } catch (e) {}
                             }
                             log("پاسخگویی به سؤال انجام شد", cardId);
                         }, 3500);
@@ -282,13 +303,9 @@ function purge(elements) {
                         setTimeout(() => {
                             for (let que of document.getElementsByClassName("baseCard")) {
                                 try {
-                                    if (que.getElementsByClassName("cardRules__extraPointsLabel").length === 0) {
-                                        continue;
-                                    }
+                                    if (que.getElementsByClassName("cardRules__extraPointsLabel").length === 0) continue;
                                     que.getElementsByClassName("multiChoiceQuestionCard__button")[event.payload.correctAnswer.alternative].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                } catch (e) {}
                             }
                         }, 3500);
                     }
@@ -298,12 +315,11 @@ function purge(elements) {
 
             if (messageType === "match_prediction") {
                 predictions = event.payload.answers;
-                if (matchpredblue) {
-                    matchpredblue.textContent = predictions["0"];
-                }
-                if (matchpredred) {
-                    matchpredred.textContent = predictions["1"];
-                }
+                if (matchpredblue) matchpredblue.textContent = predictions["0"];
+                if (matchpredred) matchpredred.textContent = predictions["1"];
+
+                showDataSubSection("autobsc-teams-wrap");
+
                 if (matchPredictionEnabled && event.payload.typeId !== lastMatchPredictionId) {
                     let cardId = "autobsc-log-predict-" + Date.now();
                     if (dynamicLogging) {
@@ -311,29 +327,13 @@ function purge(elements) {
                         let team = 0;
                         setTimeout(() => {
                             switch (matchPredictionStrategy) {
-                                case "2":
-                                    team = 1;
-                                    break;
-                                case "rand":
-                                    team = Math.floor(Math.random() * 2);
-                                    break;
-                                case "maj":
-                                    if (predictions["0"] > predictions["1"]) {
-                                        team = 0;
-                                    } else {
-                                        team = 1;
-                                    }
-                                    break;
-                                default:
-                                    break;
+                                case "2": team = 1; break;
+                                case "rand": team = Math.floor(Math.random() * 2); break;
+                                case "maj": team = predictions["0"] > predictions["1"] ? 0 : 1; break;
                             }
                             log(`ثبت پیش‌بینی نتیجۀ بازی برای تیم با رنگ ${team === 0 ? "آبی" : "قرمز"} انجام شد`, cardId);
                             for (let a of document.getElementsByClassName("matchPredictionQuestionCard__buttonGroup")) {
-                                try {
-                                    a.getElementsByTagName("button")[team].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                try { a.getElementsByTagName("button")[team].click(); } catch (e) {}
                             }
                         }, 10000);
                     } else {
@@ -341,29 +341,13 @@ function purge(elements) {
                         let team = 0;
                         setTimeout(() => {
                             switch (matchPredictionStrategy) {
-                                case "2":
-                                    team = 1;
-                                    break;
-                                case "rand":
-                                    team = Math.floor(Math.random() * 2);
-                                    break;
-                                case "maj":
-                                    if (predictions["0"] > predictions["1"]) {
-                                        team = 0;
-                                    } else {
-                                        team = 1;
-                                    }
-                                    break;
-                                default:
-                                    break;
+                                case "2": team = 1; break;
+                                case "rand": team = Math.floor(Math.random() * 2); break;
+                                case "maj": team = predictions["0"] > predictions["1"] ? 0 : 1; break;
                             }
                             log(`ارسال پیش‌بینی نتیجۀ بازی برای تیم با رنگ ${team === 0 ? "آبی" : "قرمز"}`);
                             for (let a of document.getElementsByClassName("matchPredictionQuestionCard__buttonGroup")) {
-                                try {
-                                    a.getElementsByTagName("button")[team].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                try { a.getElementsByTagName("button")[team].click(); } catch (e) {}
                             }
                         }, 10000);
                     }
@@ -378,11 +362,7 @@ function purge(elements) {
                         log("در حال دریافت لوت دراپ...", cardId);
                         setTimeout(() => {
                             for (let drop of document.getElementsByClassName("lootDropCard")) {
-                                try {
-                                    drop.getElementsByClassName("rectangleButton")[0].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                try { drop.getElementsByClassName("rectangleButton")[0].click(); } catch (e) {}
                             }
                             log("لوت دراپ دریافت شد", cardId);
                         }, 2000);
@@ -390,11 +370,7 @@ function purge(elements) {
                         log("دریافت لوت دراپ");
                         setTimeout(() => {
                             for (let drop of document.getElementsByClassName("lootDropCard")) {
-                                try {
-                                    drop.getElementsByClassName("rectangleButton")[0].click();
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                try { drop.getElementsByClassName("rectangleButton")[0].click(); } catch (e) {}
                             }
                         }, 2000);
                     }
@@ -414,9 +390,7 @@ function purge(elements) {
                                     elem.value = "100";
                                     elem.dispatchEvent(new InputEvent("input"));
                                     elem.dispatchEvent(new Event("change"));
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                } catch (e) {}
                             }
                             log("پاسخ به اسلایدر انجام شد", cardId);
                         }, 2000);
@@ -429,9 +403,7 @@ function purge(elements) {
                                     elem.value = "100";
                                     elem.dispatchEvent(new InputEvent("input"));
                                     elem.dispatchEvent(new Event("change"));
-                                } catch (e) {
-                                    console.error("[AutoBSC]", e);
-                                }
+                                } catch (e) {}
                             }
                         }, 2000);
                     }
@@ -443,7 +415,6 @@ function purge(elements) {
 
     function setupAutoBsc() {
         loaded = true;
-        console.log("[AutoBSC] AutoBSC با موفقیت بارگذاری شد");
 
         const interval = setInterval(() => {
             const div = document.getElementsByClassName("feed__content")[0];
@@ -455,68 +426,283 @@ function purge(elements) {
 
         document.body.insertAdjacentHTML("afterbegin", `
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap');
 
     #autobsc-overlay, #autobsc-overlay *, [id^="autobsc-log-"] * {
         font-family: 'Vazirmatn', sans-serif !important;
+        box-sizing: border-box;
     }
     #autobsc-overlay {
+        position: fixed;
+        top: 15%;
+        left: 10px;
+        z-index: 99999999;
         direction: rtl !important;
         text-align: right !important;
+        background: rgba(26, 27, 38, 0.65);
+        backdrop-filter: blur(12px);
+        color: #e0e2ea;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        width: 140px;
+        transition: width 0.3s ease, border-radius 0.3s ease, left 0.3s ease, top 0.3s ease;
+        overflow: hidden;
     }
-    #autobsc-overlay > details[open] {
-       width: 20rem;
+    #autobsc-overlay.open {
+        width: 290px;
     }
-    .autobsc-config-container {
-        width: 15rem;
-        padding-bottom: 0.15rem;
+    #autobsc-header {
+        padding: 12px 16px;
+        font-weight: 700;
+        font-size: 1.15rem;
+        cursor: grab;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        user-select: none;
+        border-bottom: 1px solid transparent;
+        white-space: nowrap;
+        touch-action: none;
     }
-    .autobsc-config-container > input[type=checkbox] {
-        float: left;
+    #autobsc-header:active {
+        cursor: grabbing;
+    }
+    #autobsc-overlay.open #autobsc-header {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .autobsc-chevron {
+        transition: transform 0.3s ease;
+        font-size: 0.8rem;
+    }
+    #autobsc-overlay.open .autobsc-chevron {
+        transform: rotate(180deg);
+    }
+
+    #autobsc-body {
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+        visibility: hidden;
+        overflow-y: hidden;
+        transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+        direction: ltr;
+        scrollbar-gutter: stable;
+    }
+    #autobsc-overlay.open #autobsc-body {
+        max-height: 75vh;
+        opacity: 1;
+        padding: 16px 8px 16px 16px;
+        visibility: visible;
+        transition: max-height 0.4s ease, opacity 0.4s ease, padding 0.3s ease;
+    }
+
+    #autobsc-body.allow-scroll {
+        overflow-y: auto;
+    }
+
+    .autobsc-inner-content {
+        direction: rtl;
+    }
+
+    .autobsc-hidden-block {
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        border: none !important;
+    }
+
+    #autobsc-data-section, #autobsc-users-wrap, #autobsc-teams-wrap {
+        transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.4s ease, padding 0.4s ease;
+    }
+
+    #autobsc-data-section { max-height: 200px; margin-bottom: 8px; opacity: 1; overflow: hidden; }
+    #autobsc-users-wrap { max-height: 40px; margin-bottom: 12px; opacity: 1; }
+    #autobsc-teams-wrap { max-height: 80px; opacity: 1; }
+
+    .autobsc-section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #7aa2f7;
+        margin-bottom: 12px;
+        margin-top: 20px;
+        border-bottom: 1px solid rgba(122, 162, 247, 0.2);
+        padding-bottom: 6px;
+        white-space: nowrap;
+        transition: margin-top 0.4s ease;
+    }
+    .autobsc-section-title:first-child { margin-top: 0; }
+
+    .autobsc-stat-row {
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+        white-space: nowrap;
+    }
+
+    .autobsc-config-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        transition: opacity 0.3s ease;
+    }
+
+    .autobsc-disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    .autobsc-switch {
         position: relative;
-        top: 0.15rem;
+        display: inline-block;
+        width: 38px;
+        height: 20px;
+        flex-shrink: 0;
     }
-    .Video__InteractionBlocker, .VideoCover.VideoCover--hidden {
-        all: unset !important;
-        display: none;
+    .autobsc-switch input { opacity: 0; width: 0; height: 0; }
+    .autobsc-slider-btn {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #414868;
+        transition: .3s;
+        border-radius: 20px;
     }
+    .autobsc-slider-btn:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+    .autobsc-switch input:checked + .autobsc-slider-btn { background-color: #7aa2f7; }
+    .autobsc-switch input:checked + .autobsc-slider-btn:before { transform: translateX(18px); }
+
+    .autobsc-select {
+        background: #24283b;
+        color: #e0e2ea;
+        border: 1px solid #414868;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-family: 'Vazirmatn', sans-serif;
+        outline: none;
+        width: 100%;
+    }
+    .autobsc-btn-danger {
+        width: 100%;
+        background: rgba(247, 118, 142, 0.2);
+        color: #f7768e;
+        border: 1px solid rgba(247, 118, 142, 0.4);
+        padding: 8px;
+        border-radius: 6px;
+        font-family: 'Vazirmatn', sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 14px;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+    .autobsc-btn-danger:hover { background: rgba(247, 118, 142, 0.4); }
+    #autobsc-body::-webkit-scrollbar { width: 6px; }
+    #autobsc-body::-webkit-scrollbar-track { background: transparent; }
+    #autobsc-body::-webkit-scrollbar-thumb { background: #414868; border-radius: 4px; }
+    .Video__InteractionBlocker, .VideoCover.VideoCover--hidden { all: unset !important; display: none; }
     </style>
-    <div id="autobsc-overlay" style="position: absolute; top: 20%; z-index: 99999999; background: antiquewhite">
-    <details>
-    <summary style="list-style: none;" id="autobsc-overlayheader" onclick="if (getAttribute('drag') === '') event.preventDefault()">
-      <div style="padding: 1rem; font-weight: 700;">AutoBSC++</div>
-    </summary>
-    <div style="display: grid; justify-content: center; margin-bottom: .5rem;">
-    <div>
-      <div style="margin-bottom: .5rem">
-        <h1 style="font-size: 1.2rem; font-weight: 700;">داده‌ها</h1>
-        تعداد کاربران آنلاین: <span id="autobsc-connected">unknown</span>
-      </div>
-      <div style="margin-bottom: .5rem;">
-        <h3 style="font-weight: 700;">پیش‌بینی‌ها</h3>
-        آبی: <span id="autobsc-pick-blue">unknown</span><br>
-        قرمز: <span id="autobsc-pick-red">unknown</span>
-      </div>
-      <h1 style="font-size: 1.2rem; font-weight: 700;">پیکربندی</h1>
-      <div class="autobsc-config-container">تشویق خودکار <input type="checkbox" id="autobsc-cheer"></div>
-      <div class="autobsc-config-container">پاسخگویی به نظرسنجی‌ها <input type="checkbox" id="autobsc-poll"></div>
-      <div class="autobsc-config-container">پاسخگویی به سؤالات <input type="checkbox" id="autobsc-quiz"></div>
-      <div class="autobsc-config-container">پاسخ به اسلایدر <input type="checkbox" id="autobsc-slider"></div>
-      <div class="autobsc-config-container">دریافت لوت دراپ‌ها <input type="checkbox" id="autobsc-lootdrop"></div>
-      <div class="autobsc-config-container">ثبت پیش‌بینی <input type="checkbox" id="autobsc-predict"></div>
-      <div class="autobsc-config-container">نحوه‌ی انتخاب پیش‌بینی <select style="width: 6.5rem; font-family: 'Vazirmatn', sans-serif;" id="autobsc-predict-strat">
-      <option value="1">فقط تیم آبی</option>
-      <option value="2">فقط تیم قرمز</option>
-      <option value="rand">تصادفی</option>
-      <option value="maj">اکثریت آرا</option>
-    </select></div>
-      <div class="autobsc-config-container">نمایش رویداد‌ها <input type="checkbox" id="autobsc-feedlogging"></div>
-      <div class="autobsc-config-container">لاگ پویا (بروزرسانی زنده) <input type="checkbox" id="autobsc-dynamiclogging"></div>
-      <div class="autobsc-config-container">حالت جزئیات کم <input type="checkbox" id="autobsc-lowdetail"></div>
-      <button style="background-color: red; border: none; color: white; font-family: 'Vazirmatn', sans-serif; cursor: pointer; margin-top: 0.5rem; padding: 0.2rem 0.5rem;" onclick='if (confirm("آیا مطمئن هستید؟ شما فقط با رفرش کردن صفحه می‌توانید به این منو دوباره دسترسی داشته باشید")) document.getElementById("autobsc-overlay").remove()'>مخفی کردن منو</button>
+
+    <div id="autobsc-overlay">
+        <div id="autobsc-header">
+            <span dir="ltr" style="display:inline-block;">Auto<span style="color:#ff4444;">B</span><span style="color:#ffffff;">S</span><span style="color:#ffaa00;">C</span>++</span>
+            <span class="autobsc-chevron">▼</span>
+        </div>
+
+        <div id="autobsc-body">
+            <div class="autobsc-inner-content">
+                <div id="autobsc-data-section" class="autobsc-hidden-block">
+                    <div class="autobsc-section-title">داده‌ها</div>
+                    <div id="autobsc-users-wrap" class="autobsc-hidden-block">
+                        <div class="autobsc-stat-row">
+                            <span>کاربران آنلاین:</span>
+                            <strong id="autobsc-connected" style="color:#e0af68">unknown</strong>
+                        </div>
+                    </div>
+
+                    <div id="autobsc-teams-wrap" class="autobsc-hidden-block">
+                        <div class="autobsc-stat-row">
+                            <span>تیم آبی:</span> <strong id="autobsc-pick-blue" style="color:#7dcfff">unknown</strong>
+                        </div>
+                        <div class="autobsc-stat-row">
+                            <span>تیم قرمز:</span> <strong id="autobsc-pick-red" style="color:#f7768e">unknown</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="autobsc-section-title" id="autobsc-config-title" style="margin-top: 0px;">پیکربندی</div>
+                <div class="autobsc-config-row">
+                    <span>تشویق خودکار</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-cheer"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>پاسخگویی به نظرسنجی‌ها</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-poll"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>پاسخگویی به سؤالات</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-quiz"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>پاسخ به اسلایدر</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-slider"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>دریافت لوت دراپ‌ها</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-lootdrop"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>ثبت پیش‌بینی</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-predict"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row" id="autobsc-strat-row" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                    <span>نحوه‌ی انتخاب پیش‌بینی</span>
+                    <select class="autobsc-select" id="autobsc-predict-strat">
+                        <option value="1">فقط تیم آبی</option>
+                        <option value="2">فقط تیم قرمز</option>
+                        <option value="rand">تصادفی</option>
+                        <option value="maj">اکثریت آرا</option>
+                    </select>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>نمایش لاگ‌ها</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-feedlogging"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row" id="autobsc-dyn-row">
+                    <span>لاگ‌های پویا</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-dynamiclogging"><span class="autobsc-slider-btn"></span></label>
+                </div>
+                <div class="autobsc-config-row">
+                    <span>حالت جزئیات کم</span>
+                    <label class="autobsc-switch"><input type="checkbox" id="autobsc-lowdetail"><span class="autobsc-slider-btn"></span></label>
+                </div>
+
+                <button class="autobsc-btn-danger" onclick='if(confirm("آیا مطمئن هستید؟")) document.getElementById("autobsc-overlay").remove()'>
+                    مخفی کردن منو
+                </button>
+            </div>
+        </div>
     </div>
-    </div>
-    </details></div>
         `);
 
         dragElement(document.getElementById("autobsc-overlay"));
@@ -545,48 +731,26 @@ function purge(elements) {
         elems.predictstrat.value = matchPredictionStrategy;
         elems.lowdetail.checked = lowDetail;
 
-        elems.cheer.onchange = function(e) {
-            cheerEnabled = e.target.checked;
-            store("cheer", cheerEnabled);
-        };
-        elems.poll.onchange = function(e) {
-            pollEnabled = e.target.checked;
-            store("poll", pollEnabled);
-        };
-        elems.quiz.onchange = function(e) {
-            quizEnabled = e.target.checked;
-            store("quiz", quizEnabled);
-        };
-        elems.slider.onchange = function(e) {
-            sliderEnabled = e.target.checked;
-            store("slider", sliderEnabled);
-        };
+        updateDependencies();
+
+        elems.cheer.onchange = function(e) { cheerEnabled = e.target.checked; store("cheer", cheerEnabled); };
+        elems.poll.onchange = function(e) { pollEnabled = e.target.checked; store("poll", pollEnabled); };
+        elems.quiz.onchange = function(e) { quizEnabled = e.target.checked; store("quiz", quizEnabled); };
+        elems.slider.onchange = function(e) { sliderEnabled = e.target.checked; store("slider", sliderEnabled); };
         elems.predict.onchange = function(e) {
-            matchPredictionEnabled = e.target.checked;
-            store("matchPrediction", matchPredictionEnabled);
+            matchPredictionEnabled = e.target.checked; store("matchPrediction", matchPredictionEnabled);
+            updateDependencies();
         };
-        elems.lootdrop.onchange = function(e) {
-            dropEnabled = e.target.checked;
-            store("drop", dropEnabled);
-        };
+        elems.lootdrop.onchange = function(e) { dropEnabled = e.target.checked; store("drop", dropEnabled); };
         elems.feedlogging.onchange = function(e) {
-            feedLoggingEnabled = e.target.checked;
-            store("feedLogging", feedLoggingEnabled);
+            feedLoggingEnabled = e.target.checked; store("feedLogging", feedLoggingEnabled);
+            updateDependencies();
         };
-        elems.dynamiclogging.onchange = function(e) {
-            dynamicLogging = e.target.checked;
-            store("dynamicLogging", dynamicLogging);
-        };
-        elems.predictstrat.onchange = function(e) {
-            matchPredictionStrategy = e.target.value;
-            store("predictionStrategy", matchPredictionStrategy);
-        };
+        elems.dynamiclogging.onchange = function(e) { dynamicLogging = e.target.checked; store("dynamicLogging", dynamicLogging); };
+        elems.predictstrat.onchange = function(e) { matchPredictionStrategy = e.target.value; store("predictionStrategy", matchPredictionStrategy); };
         elems.lowdetail.onchange = function(e) {
-            lowDetail = e.target.checked;
-            store("lowDetail", lowDetail);
-            if (!lowDetail) {
-                return;
-            }
+            lowDetail = e.target.checked; store("lowDetail", lowDetail);
+            if (!lowDetail) return;
             purge(document.getElementsByClassName("cheer__gradient"));
             purge(document.getElementsByClassName("cheer__canvas"));
         };
@@ -596,7 +760,7 @@ function purge(elements) {
         matchpredred = document.getElementById("autobsc-pick-red");
     }
 
-    const loadedMessageHtml = `<div data-v-6ab4ab95="" data-v-e989f123="" id="card-unlockReward-0">
+    const loadedMessageHtml = `<div data-v-6ab4ab95="" data-v-e989f123="" id="autobsc-log-startup">
     <div data-v-307c1ac7="" data-v-6ab4ab95="" class="contentCardContainer" with-extra-top-margin="" style="translate: none; rotate: none; scale: none; transform: translate3d(0px, 0px, 0px); opacity: 1; --v3ee5afce: #245fc1;">
         <div data-v-615f3480="" data-v-307c1ac7="" class="baseCard baseCard--paper" radius="medium">
             <div data-v-615f3480="" class="baseCard__cardBackground baseCard__cardBackground--paper-3"></div>
@@ -626,35 +790,107 @@ function purge(elements) {
 })();
 
 function dragElement(elmnt) {
-    var pos1 = 0,
-        pos2 = 0,
-        pos3 = 0,
-        pos4 = 0;
-    let dragger = document.getElementById(elmnt.id + "header") ?? elmnt;
-    dragger.onmousedown = dragMouseDown;
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    let dragger = document.getElementById("autobsc-header");
+    let isDragging = false;
 
-    function dragMouseDown(e) {
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
+    if (dragger) {
+        dragger.onmousedown = dragStart;
+        dragger.ontouchstart = dragStart;
+    }
+
+    window.addEventListener('resize', () => enforceBounds(elmnt));
+
+    function dragStart(e) {
+        isDragging = false;
+
+        let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+
+        pos3 = clientX;
+        pos4 = clientY;
+
         document.onmouseup = closeDragElement;
         document.onmousemove = elementDrag;
+        document.ontouchend = closeDragElement;
+        document.ontouchmove = elementDrag;
+
+        elmnt.style.transition = "width 0.3s ease, border-radius 0.3s ease";
     }
 
     function elementDrag(e) {
-        dragger.setAttribute("drag", "");
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+
+        if (Math.abs(pos3 - clientX) > 4 || Math.abs(pos4 - clientY) > 4) {
+            isDragging = true;
+        }
+
+        if (!isDragging) return;
+
+        pos1 = pos3 - clientX;
+        pos2 = pos4 - clientY;
+        pos3 = clientX;
+        pos4 = clientY;
+
+        let newTop = elmnt.offsetTop - pos2;
+        let newLeft = elmnt.offsetLeft - pos1;
+
+        let maxLeft = window.innerWidth - elmnt.offsetWidth;
+        let maxTop = window.innerHeight - elmnt.offsetHeight;
+
+        newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+
+        elmnt.style.top = newTop + "px";
+        elmnt.style.left = newLeft + "px";
     }
 
-    function closeDragElement() {
-        setTimeout(() => dragger.removeAttribute("drag"), 100);
+    function closeDragElement(e) {
         document.onmouseup = null;
         document.onmousemove = null;
+        document.ontouchend = null;
+        document.ontouchmove = null;
+
+        elmnt.style.transition = "width 0.3s ease, border-radius 0.3s ease, left 0.3s ease, top 0.3s ease";
+
+        if (!isDragging) {
+            if (e && e.type === "touchend") {
+                e.preventDefault();
+            }
+
+            let willBeOpen = !elmnt.classList.contains('open');
+
+            if (willBeOpen) {
+                elmnt.classList.add('open');
+
+                setTimeout(() => {
+                    if (elmnt.classList.contains('open')) {
+                        document.getElementById("autobsc-body").classList.add("allow-scroll");
+                    }
+                }, 400);
+
+                let targetWidth = 290;
+                let currentLeft = elmnt.offsetLeft;
+                if (currentLeft + targetWidth > window.innerWidth) {
+                    elmnt.style.left = Math.max(0, window.innerWidth - targetWidth - 10) + "px";
+                }
+                setTimeout(() => enforceBounds(elmnt), 350);
+            } else {
+                document.getElementById("autobsc-body").classList.remove("allow-scroll");
+                elmnt.classList.remove('open');
+            }
+        }
+    }
+
+    function enforceBounds(el) {
+        let maxLeft = window.innerWidth - el.offsetWidth;
+        let maxTop = window.innerHeight - el.offsetHeight;
+
+        let correctedLeft = Math.max(0, Math.min(el.offsetLeft, maxLeft - 10));
+        let correctedTop = Math.max(0, Math.min(el.offsetTop, maxTop - 10));
+
+        el.style.left = correctedLeft + "px";
+        el.style.top = correctedTop + "px";
     }
 }
